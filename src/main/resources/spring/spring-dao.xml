@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:tx="http://www.springframework.org/schema/tx"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd">
+<!-- 1 配置保存Mybatis的过程-->
+    <context:property-placeholder location="classpath:jdbc.properties"/>
+    <!--2 创建dbcp数据源连接池对象-->
+    <bean name="dataSource" class="com.mchange.v2.c3p0.ComboPooledDataSource">
+        <property name="driverClass" value="${jdbc.driver}"></property>
+        <property name="jdbcUrl" value="${jdbc.url}"></property>
+        <property name="user" value="${jdbc.username}"></property>
+        <property name="password" value="${jdbc.password}"></property>
+
+
+<!-- C3p0连接池的私有属性-->
+        <property name="maxPoolSize" value="30"/>
+
+        <property name="minPoolSize" value="10"/>
+
+   <!--关闭连接后不自动commit-->
+        <property name="autoCommitOnClose" value="false"></property>
+        <property name="checkoutTimeout" value="1000"/>
+        <property name="acquireIncrement" value="2"/>
+
+    </bean>
+    <!--3 创建mybatis的SqlSessionFactory工厂类对象-->
+    <bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+        <property name="dataSource" ref="dataSource"></property>
+        <!--指定mapper文件的地址 此处可以使用*号同配置，表示加载包下所有的xml结尾的mapper文件-->
+        <property name="configLocation" value="classpath:mybatis-config.xml"></property>
+        <property name="typeAliasesPackage" value="com.imook.entry"></property>
+      <!--扫描sql 配置文件 mapper  xml-->
+        <property name="mapperLocations" value="classpath:mapper/*.xml" />
+    </bean>
+    <!--4. 配置扫描mybatis的dao接口 ，会为dao接口创建myabtis的dao接口实现类对象，放置到session工厂中-->
+    <bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
+<!--注入SqlsesisionFactory-->
+
+        <property name="sqlSessionFactoryBeanName" value="sqlSessionFactory"></property>
+        <!--指定dao接口在哪个包中-->
+        <property name="basePackage" value="com.imook.dao"></property>
+    </bean>
+
+
+
+</beans>
